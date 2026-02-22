@@ -14,7 +14,7 @@ class DocumentPolicy
      */
     public function viewAny(User $user, Trip $trip): bool
     {
-        return $user->id === $trip->user_id;
+        return (string) $user->id === (string) $trip->user_id;
     }
 
     /**
@@ -22,7 +22,7 @@ class DocumentPolicy
      */
     public function create(User $user, Trip $trip): bool
     {
-        return $user->id === $trip->user_id;
+        return (string) $user->id === (string) $trip->user_id;
     }
 
     /**
@@ -30,7 +30,9 @@ class DocumentPolicy
      */
     public function delete(User $user, Document $document): bool
     {
-        return $user->id === $document->user_id || $user->id === $document->trip->user_id;
+        $document->load('trip');
+        return (string) $user->id === (string) $document->user_id 
+            || (string) $user->id === (string) $document->trip->user_id;
     }
 
     /**
@@ -38,7 +40,9 @@ class DocumentPolicy
      */
     public function view(User $user, Document $document): bool
     {
-        return $user->id === $document->user_id || $user->id === $document->trip->user_id;
+        $document->load('trip');
+        return (string) $user->id === (string) $document->user_id 
+            || (string) $user->id === (string) $document->trip->user_id;
     }
 
     /**
@@ -46,7 +50,9 @@ class DocumentPolicy
      */
     public function update(User $user, Document $document): bool
     {
-        return $user->id === $document->user_id || $user->id === $document->trip->user_id;
+        $document->load('trip');
+        return (string) $user->id === (string) $document->user_id 
+            || (string) $user->id === (string) $document->trip->user_id;
     }
 
     /**
