@@ -15,6 +15,7 @@ class DocumentControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $trip;
 
     protected function setUp(): void
@@ -83,7 +84,7 @@ class DocumentControllerTest extends TestCase
     public function test_user_cannot_delete_document_from_others_trip(): void
     {
         Storage::fake('public');
-        
+
         $otherUser = User::factory()->create();
         $otherTrip = Trip::factory()->create(['user_id' => $otherUser->id]);
         $document = Document::factory()->create([

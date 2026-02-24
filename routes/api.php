@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\Api\V1\ChecklistController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ExpenseController;
@@ -35,4 +36,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('trips/{trip}/documents', [DocumentController::class, 'index']);
     Route::post('trips/{trip}/documents', [DocumentController::class, 'store']);
     Route::delete('documents/{document}', [DocumentController::class, 'destroy']);
+
+    // Document Checklist routes
+    Route::get('trips/{trip}/checklist', [ChecklistController::class, 'show']);
+    Route::post('trips/{trip}/checklist/items', [ChecklistController::class, 'addItem']);
+    Route::patch('checklist/items/{item}/complete', [ChecklistController::class, 'toggleComplete']);
+    Route::delete('checklist/items/{item}', [ChecklistController::class, 'deleteItem']);
+    Route::post('checklist/items/{item}/documents', [ChecklistController::class, 'uploadDocument']);
+    Route::post('checklist/items/{item}/documents/from-drive', [ChecklistController::class, 'importFromDrive']);
+    Route::get('checklist/documents/{document}/download', [ChecklistController::class, 'downloadDocument']);
+    Route::get('checklist/documents/{document}/preview', [ChecklistController::class, 'previewDocument']);
+    Route::delete('checklist/documents/{document}', [ChecklistController::class, 'deleteDocument']);
 });

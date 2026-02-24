@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         if (env('SEED_PROFILE', 'full') === 'minimal') {
             $this->call(MinimalDemoSeeder::class);
+
             return;
         }
 

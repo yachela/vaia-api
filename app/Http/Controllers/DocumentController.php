@@ -17,6 +17,7 @@ class DocumentController extends Controller
     public function index(Trip $trip)
     {
         $this->authorize('viewAny', [Document::class, $trip]);
+
         return response()->json($trip->documents()->with('user')->get());
     }
 
@@ -30,9 +31,10 @@ class DocumentController extends Controller
         $request->validate([
             'document' => ['required', 'file', 'max:10240'], // Max 10MB
             'description' => ['nullable', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:50'],
         ]);
 
-        if (!$request->hasFile('document')) {
+        if (! $request->hasFile('document')) {
             throw ValidationException::withMessages([
                 'document' => 'No document file provided.',
             ]);
@@ -48,6 +50,7 @@ class DocumentController extends Controller
             'mime_type' => $file->getMimeType(),
             'file_size' => $file->getSize(),
             'description' => $request->input('description'),
+            'category' => $request->input('category'),
         ]);
 
         return response()->json($document->load('user'), 201);

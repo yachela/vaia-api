@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Models\Document;
 use App\Models\Trip;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class DocumentPolicy
 {
@@ -31,7 +30,8 @@ class DocumentPolicy
     public function delete(User $user, Document $document): bool
     {
         $document->load('trip');
-        return (string) $user->id === (string) $document->user_id 
+
+        return (string) $user->id === (string) $document->user_id
             || (string) $user->id === (string) $document->trip->user_id;
     }
 
@@ -41,7 +41,8 @@ class DocumentPolicy
     public function view(User $user, Document $document): bool
     {
         $document->load('trip');
-        return (string) $user->id === (string) $document->user_id 
+
+        return (string) $user->id === (string) $document->user_id
             || (string) $user->id === (string) $document->trip->user_id;
     }
 
@@ -51,7 +52,8 @@ class DocumentPolicy
     public function update(User $user, Document $document): bool
     {
         $document->load('trip');
-        return (string) $user->id === (string) $document->user_id 
+
+        return (string) $user->id === (string) $document->user_id
             || (string) $user->id === (string) $document->trip->user_id;
     }
 

@@ -16,8 +16,8 @@ class DocumentFactory extends Factory
         return [
             'trip_id' => Trip::factory(),
             'user_id' => User::factory(),
-            'file_path' => 'documents/' . $this->faker->uuid() . '.pdf',
-            'file_name' => $this->faker->word() . '.pdf',
+            'file_path' => 'documents/'.$this->faker->uuid().'.pdf',
+            'file_name' => $this->faker->word().'.pdf',
             'mime_type' => 'application/pdf',
             'file_size' => $this->faker->numberBetween(1024, 10240000),
             'description' => $this->faker->sentence(),

@@ -24,6 +24,7 @@ class Document extends Model
         'mime_type',
         'file_size',
         'description',
+        'category',
     ];
 
     /**
