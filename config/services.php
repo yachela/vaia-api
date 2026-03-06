@@ -41,4 +41,8 @@ return [
         'redirect_uri' => env('GOOGLE_DRIVE_REDIRECT_URI'),
     ],
 
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+    ],
+
 ];

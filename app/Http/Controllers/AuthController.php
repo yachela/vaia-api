@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -93,7 +94,6 @@ class AuthController extends Controller
             'country' => 'nullable|string|max:120',
             'language' => 'nullable|string|max:60',
             'currency' => 'nullable|string|max:20',
-            'avatar_url' => 'nullable|url|max:2048',
         ]);
 
         $user->update($validated);
@@ -101,6 +101,34 @@ class AuthController extends Controller
         return response()->json([
             'data' => $user->fresh(),
             'message' => 'Perfil actualizado',
+        ]);
+    }
+
+    /**
+     * Sube o reemplaza el avatar del usuario autenticado.
+     * POST /api/user/avatar  (multipart, campo: avatar)
+     */
+    public function uploadAvatar(Request $request): mixed
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        $user = $request->user();
+
+        // Eliminar avatar anterior si es un path interno
+        $old = $user->getRawOriginal('avatar_url') ?? $user->attributes['avatar_url'] ?? null;
+        if ($old && ! str_starts_with($old, 'http')) {
+            Storage::disk('public')->delete($old);
+        }
+
+        $path = $request->file('avatar')->store("avatars/{$user->id}", 'public');
+
+        $user->update(['avatar_url' => $path]);
+
+        return response()->json([
+            'data' => $user->fresh(),
+            'message' => 'Avatar actualizado correctamente.',
         ]);
     }
 }
