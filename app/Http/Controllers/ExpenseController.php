@@ -40,7 +40,7 @@ class ExpenseController extends Controller
             $data = $request->validated();
 
             if ($request->hasFile('receipt_image')) {
-                $data['receipt_image'] = $request->file('receipt_image')->store('receipts', 'public');
+                $data['receipt_image'] = $request->file('receipt_image')->store('receipts', 'private');
             }
 
             $expense = $trip->expenses()->create($data);
@@ -84,9 +84,9 @@ class ExpenseController extends Controller
             if ($request->hasFile('receipt_image')) {
                 // Eliminar imagen anterior si existe
                 if ($expense->receipt_image) {
-                    Storage::disk('public')->delete($expense->receipt_image);
+                    Storage::disk('private')->delete($expense->receipt_image);
                 }
-                $data['receipt_image'] = $request->file('receipt_image')->store('receipts', 'public');
+                $data['receipt_image'] = $request->file('receipt_image')->store('receipts', 'private');
             }
 
             $expense->update($data);
@@ -112,7 +112,7 @@ class ExpenseController extends Controller
         try {
             // Eliminar imagen si existe
             if ($expense->receipt_image) {
-                Storage::disk('public')->delete($expense->receipt_image);
+                Storage::disk('private')->delete($expense->receipt_image);
             }
 
             $expense->delete();
@@ -121,5 +121,30 @@ class ExpenseController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al eliminar el gasto.'], 500);
         }
+    }
+
+    /**
+     * Descarga el comprobante de un gasto de forma autenticada.
+     * El archivo se sirve desde disco privado; no es accesible públicamente.
+     */
+    public function downloadReceipt(Trip $trip, Expense $expense): mixed
+    {
+        $this->authorize('view', $trip);
+
+        if ($expense->trip_id !== $trip->id) {
+            return response()->json(['message' => 'Comprobante no encontrado.'], 404);
+        }
+
+        if (! $expense->receipt_image) {
+            return response()->json(['message' => 'Este gasto no tiene comprobante.'], 404);
+        }
+
+        $path = storage_path('app/private/'.$expense->receipt_image);
+
+        if (! file_exists($path)) {
+            return response()->json(['message' => 'Archivo no encontrado.'], 404);
+        }
+
+        return response()->download($path, basename($expense->receipt_image));
     }
 }

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 class Expense extends Model
 {
@@ -34,6 +33,13 @@ class Expense extends Model
 
     public function getReceiptImageUrlAttribute(): ?string
     {
-        return $this->receipt_image ? Storage::url($this->receipt_image) : null;
+        if (! $this->receipt_image) {
+            return null;
+        }
+
+        return route('api.expenses.receipt', [
+            'trip' => $this->trip_id,
+            'expense' => $this->id,
+        ]);
     }
 }
