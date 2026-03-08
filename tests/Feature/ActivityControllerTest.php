@@ -147,4 +147,32 @@ class ActivityControllerTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonStructure(['message', 'errors']);
     }
+
+    public function test_user_can_list_all_activities_across_trips(): void
+    {
+        $trip2 = Trip::factory()->create(['user_id' => $this->user->id]);
+
+        Activity::factory()->create(['trip_id' => $this->trip->id, 'title' => 'Actividad 1']);
+        Activity::factory()->create(['trip_id' => $this->trip->id, 'title' => 'Actividad 2']);
+        Activity::factory()->create(['trip_id' => $trip2->id, 'title' => 'Actividad 3']);
+        Activity::factory()->create(['title' => 'Otro usuario']); // No pertenece
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson('/api/activities');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => ['id', 'title', 'date', 'time', 'location'],
+                ],
+                'links', 'meta',
+            ])
+            ->assertJsonCount(3, 'data');
+    }
+
+    public function test_unauthenticated_user_cannot_list_all_activities(): void
+    {
+        $this->getJson('/api/activities')
+            ->assertStatus(401);
+    }
 }

@@ -22,6 +22,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user', [AuthController::class, 'updateUser']);
     Route::post('/user/avatar', [AuthController::class, 'uploadAvatar'])->name('api.user.avatar');
 
+    // All activities for the authenticated user
+    Route::get('/activities', [ActivityController::class, 'all']);
+
     Route::apiResource('trips', TripController::class);
     Route::get('trips/{trip}/export/itinerary.pdf', [ExportController::class, 'itineraryPdf'])->name('api.trips.export.itinerary');
     Route::get('trips/{trip}/export/expenses.csv', [ExportController::class, 'expensesCsv'])->name('api.trips.export.expenses');

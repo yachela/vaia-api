@@ -7,9 +7,33 @@ use App\Http\Requests\UpdateActivityRequest;
 use App\Http\Resources\ActivityResource;
 use App\Models\Activity;
 use App\Models\Trip;
+use Illuminate\Http\Request;
 
 class ActivityController extends Controller
 {
+    /**
+     * Display all activities for the authenticated user across all trips.
+     * GET /api/activities
+     */
+    public function all(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $tripIds = $user->trips()->select('id')->pluck('id');
+
+            $activities = Activity::whereIn('trip_id', $tripIds)
+                ->orderBy('date')
+                ->orderBy('time')
+                ->paginate(50);
+
+            return ActivityResource::collection($activities);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener todas las actividades: ' . $e->getMessage());
+
+            return response()->json(['message' => 'Error al obtener las actividades.'], 500);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      * Lista actividades de un viaje específico, verifica autorización.

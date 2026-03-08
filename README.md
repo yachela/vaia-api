@@ -10,6 +10,11 @@ Backend API para la aplicación móvil de viajes VAIA.
 - Redis
 - Laravel Sanctum
 
+## Screenshots
+
+<!-- Add screenshots here -->
+<!-- ![API Screenshot](docs/screenshot.png) -->
+
 ## Instalación
 
 ```bash
@@ -50,6 +55,7 @@ composer test
 - `DELETE /api/trips/{trip}` - Eliminar viaje
 
 ### Actividades
+- `GET /api/activities` - Listar todas las actividades del usuario
 - `GET /api/trips/{trip}/activities` - Listar actividades
 - `POST /api/trips/{trip}/activities` - Crear actividad
 - `PUT /api/trips/{trip}/activities/{activity}` - Actualizar
