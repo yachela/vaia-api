@@ -99,6 +99,56 @@ class DocumentControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function test_user_can_upload_document(): void
+    {
+        Storage::fake('public');
+        $file = UploadedFile::fake()->create('passport.pdf', 512, 'application/pdf');
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson("/api/trips/{$this->trip->id}/documents", [
+                'document' => $file,
+                'description' => 'Mi pasaporte',
+                'category' => 'passport',
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonFragment(['file_name' => 'passport.pdf'])
+            ->assertJsonFragment(['description' => 'Mi pasaporte'])
+            ->assertJsonFragment(['category' => 'passport']);
+
+        $this->assertDatabaseHas('documents', [
+            'trip_id' => $this->trip->id,
+            'user_id' => $this->user->id,
+            'file_name' => 'passport.pdf',
+        ]);
+
+        Storage::disk('public')->assertExists(
+            $response->json('file_path')
+        );
+    }
+
+    public function test_user_can_delete_their_own_document(): void
+    {
+        Storage::fake('public');
+        $fakeFile = UploadedFile::fake()->create('visa.pdf', 256);
+        $filePath = $fakeFile->store('documents', 'public');
+
+        $document = Document::factory()->create([
+            'trip_id' => $this->trip->id,
+            'user_id' => $this->user->id,
+            'file_path' => $filePath,
+        ]);
+
+        Storage::disk('public')->assertExists($filePath);
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->deleteJson("/api/documents/{$document->id}");
+
+        $response->assertNoContent();
+        $this->assertDatabaseMissing('documents', ['id' => $document->id]);
+        Storage::disk('public')->assertMissing($filePath);
+    }
+
     public function test_unauthenticated_user_cannot_access_documents(): void
     {
         $response = $this->getJson("/api/trips/{$this->trip->id}/documents");

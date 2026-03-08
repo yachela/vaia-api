@@ -23,7 +23,7 @@ class ExpenseControllerTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->trip = Trip::factory()->create(['user_id' => $this->user->id]);
-        Storage::fake('public');
+        Storage::fake('private');
     }
 
     public function test_user_can_list_expenses_of_their_trip(): void
@@ -87,7 +87,7 @@ class ExpenseControllerTest extends TestCase
 
         $expense = Expense::first();
         $this->assertNotNull($expense->receipt_image);
-        Storage::disk('public')->assertExists($expense->receipt_image);
+        Storage::disk('private')->assertExists($expense->receipt_image);
     }
 
     public function test_user_can_update_expense_of_their_trip(): void
@@ -117,7 +117,7 @@ class ExpenseControllerTest extends TestCase
         $oldFile = UploadedFile::fake()->image('old.jpg');
         $expense = Expense::factory()->create([
             'trip_id' => $this->trip->id,
-            'receipt_image' => $oldFile->store('receipts', 'public'),
+            'receipt_image' => $oldFile->store('receipts', 'private'),
         ]);
 
         $newFile = UploadedFile::fake()->image('new.jpg');
@@ -133,8 +133,8 @@ class ExpenseControllerTest extends TestCase
 
         $updatedExpense = $expense->fresh();
         $this->assertNotEquals($expense->receipt_image, $updatedExpense->receipt_image);
-        Storage::disk('public')->assertMissing($expense->receipt_image);
-        Storage::disk('public')->assertExists($updatedExpense->receipt_image);
+        Storage::disk('private')->assertMissing($expense->receipt_image);
+        Storage::disk('private')->assertExists($updatedExpense->receipt_image);
     }
 
     public function test_user_can_delete_expense_of_their_trip(): void
@@ -142,7 +142,7 @@ class ExpenseControllerTest extends TestCase
         $file = UploadedFile::fake()->image('receipt.jpg');
         $expense = Expense::factory()->create([
             'trip_id' => $this->trip->id,
-            'receipt_image' => $file->store('receipts', 'public'),
+            'receipt_image' => $file->store('receipts', 'private'),
         ]);
 
         $response = $this->actingAs($this->user, 'sanctum')
@@ -152,7 +152,7 @@ class ExpenseControllerTest extends TestCase
             ->assertJson(['message' => 'Gasto eliminado correctamente.']);
 
         $this->assertSoftDeleted('expenses', ['id' => $expense->id]);
-        Storage::disk('public')->assertMissing($expense->receipt_image);
+        Storage::disk('private')->assertMissing($expense->receipt_image);
     }
 
     public function test_image_validation(): void
