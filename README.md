@@ -1,59 +1,83 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# VAIA API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend API para la aplicación móvil de viajes VAIA.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Laravel 12
+- PHP 8.2+
+- PostgreSQL 16
+- Redis
+- Laravel Sanctum
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Instalación
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+```
 
-## Learning Laravel
+## Desarrollo
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+# Servidor completo (server + queue + logs + vite)
+composer dev
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# Solo servidor
+php artisan serve
 
-## Laravel Sponsors
+# Tests
+composer test
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## API Endpoints
 
-### Premium Partners
+### Autenticación
+- `POST /api/register` - Registro de usuario
+- `POST /api/login` - Inicio de sesión
+- `POST /api/logout` - Cerrar sesión
+- `GET /api/user` - Obtener perfil
+- `PUT /api/user` - Actualizar perfil
+- `POST /api/user/avatar` - Subir avatar
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Viajes (CRUD)
+- `GET /api/trips` - Listar viajes
+- `POST /api/trips` - Crear viaje
+- `GET /api/trips/{trip}` - Ver viaje
+- `PUT /api/trips/{trip}` - Actualizar viaje
+- `DELETE /api/trips/{trip}` - Eliminar viaje
 
-## Contributing
+### Actividades
+- `GET /api/trips/{trip}/activities` - Listar actividades
+- `POST /api/trips/{trip}/activities` - Crear actividad
+- `PUT /api/trips/{trip}/activities/{activity}` - Actualizar
+- `DELETE /api/trips/{trip}/activities/{activity}` - Eliminar
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Gastos
+- `GET /api/trips/{trip}/expenses` - Listar gastos
+- `POST /api/trips/{trip}/expenses` - Crear gasto
+- `GET /api/trips/{trip}/expenses/{expense}/receipt` - Descargar recibo
 
-## Code of Conduct
+### Documentos
+- `GET /api/trips/{trip}/documents` - Listar documentos
+- `POST /api/trips/{trip}/documents` - Subir documento
+- `DELETE /api/documents/{document}` - Eliminar documento
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Checklist
+- `GET /api/trips/{trip}/checklist` - Ver checklist
+- `POST /api/trips/{trip}/checklist/items` - Agregar item
+- `PATCH /api/checklist/items/{item}/complete` - Toggle completado
+- `DELETE /api/checklist/items/{item}` - Eliminar item
 
-## Security Vulnerabilities
+### Exportación
+- `GET /api/trips/{trip}/export/itinerary.pdf` - PDF del itinerario
+- `GET /api/trips/{trip}/export/expenses.csv` - CSV de gastos
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### IA
+- `POST /api/trips/{trip}/suggestions` - Obtener sugerencias de actividades
 
-## License
+## Licencia
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT
