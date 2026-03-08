@@ -79,7 +79,7 @@ class ChecklistService
             'file_name' => $filename,
             'file_path' => $path,
             'mime_type' => $mimeType,
-            'file_size' => strlen($fileContent),
+            'file_size' => mb_strlen($fileContent, '8bit'),
             'source' => 'google_drive',
             'google_drive_file_id' => $fileId,
             'uploaded_by' => $user->id,

@@ -23,8 +23,9 @@ class ChecklistController extends Controller
 
     public function show(Trip $trip): JsonResponse
     {
+        $this->authorize('view', $trip);
+
         try {
-            $this->authorize('view', $trip);
 
             $checklist = $trip->documentChecklist()->with('items.document')->first();
 
@@ -47,8 +48,9 @@ class ChecklistController extends Controller
 
     public function addItem(Request $request, Trip $trip): JsonResponse
     {
+        $this->authorize('create', $trip);
+
         try {
-            $this->authorize('view', $trip);
 
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
@@ -78,6 +80,8 @@ class ChecklistController extends Controller
 
     public function toggleComplete(Request $request, ChecklistItem $item): JsonResponse
     {
+        $this->authorize('update', $item);
+
         try {
             $validated = $request->validate([
                 'is_completed' => 'required|boolean',
@@ -97,6 +101,8 @@ class ChecklistController extends Controller
 
     public function deleteItem(ChecklistItem $item): JsonResponse
     {
+        $this->authorize('delete', $item);
+
         try {
             if ($item->document) {
                 $this->checklistService->deleteDocumentFile($item->document);
@@ -114,6 +120,8 @@ class ChecklistController extends Controller
 
     public function uploadDocument(Request $request, ChecklistItem $item): JsonResponse
     {
+        $this->authorize('uploadDocument', $item);
+
         try {
             $validated = $request->validate([
                 'file' => 'required|file|max:25600|mimetypes:application/pdf,image/jpeg,image/png,image/gif,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -139,6 +147,8 @@ class ChecklistController extends Controller
 
     public function importFromDrive(Request $request, ChecklistItem $item): JsonResponse
     {
+        $this->authorize('uploadDocument', $item);
+
         try {
             $validated = $request->validate([
                 'file_id' => 'required|string',
@@ -166,6 +176,8 @@ class ChecklistController extends Controller
 
     public function downloadDocument(ChecklistDocument $document): mixed
     {
+        $this->authorize('downloadDocument', $document);
+
         try {
             $path = storage_path('app/private/'.$document->file_path);
 
@@ -185,6 +197,8 @@ class ChecklistController extends Controller
 
     public function previewDocument(ChecklistDocument $document): JsonResponse
     {
+        $this->authorize('downloadDocument', $document);
+
         try {
             $path = storage_path('app/private/'.$document->file_path);
 
@@ -210,6 +224,8 @@ class ChecklistController extends Controller
 
     public function deleteDocument(ChecklistDocument $document): JsonResponse
     {
+        $this->authorize('deleteDocument', $document);
+
         try {
             $item = $document->checklistItem;
 

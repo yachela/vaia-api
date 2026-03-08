@@ -3,10 +3,13 @@
 namespace App\Providers;
 
 use App\Models\Activity;
+use App\Models\ChecklistDocument;
+use App\Models\ChecklistItem;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\Trip;
 use App\Policies\ActivityPolicy;
+use App\Policies\ChecklistDocumentPolicy;
 use App\Policies\DocumentPolicy;
 use App\Policies\ExpensePolicy;
 use App\Policies\TripPolicy;
@@ -24,6 +27,8 @@ class AuthServiceProvider extends ServiceProvider
         Activity::class => ActivityPolicy::class,
         Expense::class => ExpensePolicy::class,
         Document::class => DocumentPolicy::class,
+        ChecklistItem::class => ChecklistDocumentPolicy::class,
+        ChecklistDocument::class => ChecklistDocumentPolicy::class,
     ];
 
     /**
