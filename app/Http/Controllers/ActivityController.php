@@ -28,7 +28,7 @@ class ActivityController extends Controller
 
             return ActivityResource::collection($activities);
         } catch (\Exception $e) {
-            Log::error('Error al obtener todas las actividades: ' . $e->getMessage());
+            Log::error('Error al obtener todas las actividades: '.$e->getMessage());
 
             return response()->json(['message' => 'Error al obtener las actividades.'], 500);
         }
