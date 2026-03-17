@@ -6,12 +6,16 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\PackingListController;
 use App\Http\Controllers\SuggestionsController;
 use App\Http\Controllers\TripController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::middleware(['throttle:5,1'])->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
 Route::get('/test', function () {
     return response()->json(['message' => 'API funcionando']);
 });
@@ -57,4 +61,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('checklist/documents/{document}/download', [ChecklistController::class, 'downloadDocument']);
     Route::get('checklist/documents/{document}/preview', [ChecklistController::class, 'previewDocument']);
     Route::delete('checklist/documents/{document}', [ChecklistController::class, 'deleteDocument']);
+
+    // Packing List routes
+    Route::get('trips/{trip}/packing-list', [PackingListController::class, 'show']);
+    Route::post('trips/{trip}/packing-list/generate', [PackingListController::class, 'generate']);
+    Route::post('trips/{trip}/packing-list/weather-suggestions', [PackingListController::class, 'weatherSuggestions']);
+    Route::post('trips/{trip}/packing-list/items', [PackingListController::class, 'addItem']);
+    Route::patch('packing-list/items/{item}/toggle', [PackingListController::class, 'toggleItem']);
+    Route::delete('packing-list/items/{item}', [PackingListController::class, 'deleteItem']);
 });

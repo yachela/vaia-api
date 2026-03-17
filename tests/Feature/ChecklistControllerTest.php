@@ -123,4 +123,62 @@ class ChecklistControllerTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_can_import_document_from_google_drive(): void
+    {
+        $this->markTestSkipped('Google Drive integration requires mock setup');
+    }
+
+    public function test_can_preview_document(): void
+    {
+        $checklist = TripDocumentChecklist::create(['trip_id' => $this->trip->id]);
+        $item = ChecklistItem::create([
+            'trip_document_checklist_id' => $checklist->id,
+            'name' => 'Pasaporte',
+            'is_default' => true,
+            'is_completed' => false,
+            'position' => 1,
+        ]);
+
+        $documentResponse = $this->actingAs($this->user, 'sanctum')
+            ->postJson("/api/checklist/items/{$item->id}/documents", [
+                'file' => \Illuminate\Http\UploadedFile::fake()->create('test.pdf', 1024),
+            ]);
+
+        $documentId = $documentResponse->json('data.id');
+
+        $previewResponse = $this->actingAs($this->user, 'sanctum')
+            ->getJson("/api/checklist/documents/{$documentId}/preview");
+
+        $previewResponse->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => ['url', 'mime_type', 'expires_at'],
+            ]);
+    }
+
+    public function test_preview_requires_authorization(): void
+    {
+        $otherUser = User::factory()->create();
+        $otherTrip = Trip::factory()->create(['user_id' => $otherUser->id]);
+        $otherChecklist = TripDocumentChecklist::create(['trip_id' => $otherTrip->id]);
+        $otherItem = ChecklistItem::create([
+            'trip_document_checklist_id' => $otherChecklist->id,
+            'name' => 'Documento',
+            'is_default' => true,
+            'is_completed' => false,
+            'position' => 1,
+        ]);
+
+        $documentResponse = $this->actingAs($otherUser, 'sanctum')
+            ->postJson("/api/checklist/items/{$otherItem->id}/documents", [
+                'file' => \Illuminate\Http\UploadedFile::fake()->create('test.pdf', 1024),
+            ]);
+
+        $documentId = $documentResponse->json('data.id');
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson("/api/checklist/documents/{$documentId}/preview");
+
+        $response->assertStatus(403);
+    }
 }

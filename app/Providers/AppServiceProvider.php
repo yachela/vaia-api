@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Trip;
 use App\Models\TripDocumentChecklist;
+use App\Observers\PackingListObserver;
 use App\Observers\TripDocumentChecklistObserver;
 use App\Observers\TripObserver;
 use Illuminate\Support\ServiceProvider;
@@ -18,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Trip::observe(TripObserver::class);
+        Trip::observe(PackingListObserver::class);
         TripDocumentChecklist::observe(TripDocumentChecklistObserver::class);
     }
 }

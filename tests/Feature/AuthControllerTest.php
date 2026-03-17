@@ -178,4 +178,58 @@ class AuthControllerTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_user_can_upload_avatar(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test-token')->plainTextToken;
+
+        $response = $this->withHeaders(['Authorization' => "Bearer $token"])
+            ->post('/api/user/avatar', [
+                'avatar' => \Illuminate\Http\UploadedFile::fake()->image('avatar.jpg', 200, 200),
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => ['id', 'name', 'email', 'avatar_url'],
+            ]);
+
+        $this->assertNotNull($user->fresh()->avatar_url);
+    }
+
+    public function test_avatar_upload_fails_with_invalid_file(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test-token')->plainTextToken;
+
+        $response = $this->withHeaders(['Authorization' => "Bearer $token"])
+            ->postJson('/api/user/avatar', [
+                'avatar' => \Illuminate\Http\UploadedFile::fake()->create('document.pdf', 1024),
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['avatar']);
+    }
+
+    public function test_login_rate_limited_after_5_attempts(): void
+    {
+        $user = User::factory()->create([
+            'password' => bcrypt('password123'),
+        ]);
+
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->postJson('/api/login', [
+                'email' => $user->email,
+                'password' => 'wrongpassword',
+            ]);
+            $response->assertStatus(422);
+        }
+
+        $response = $this->postJson('/api/login', [
+            'email' => $user->email,
+            'password' => 'wrongpassword',
+        ]);
+
+        $response->assertStatus(429);
+    }
 }

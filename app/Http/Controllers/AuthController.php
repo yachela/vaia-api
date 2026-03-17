@@ -38,7 +38,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        Log::info('Login attempt', $request->all());
+        Log::info('Login attempt', ['email' => $request->input('email')]);
 
         $request->validate([
             'email' => 'required|string|email',
@@ -48,7 +48,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->input('email'))->first();
 
         if (! $user || ! Hash::check($request->input('password'), $user->password)) {
-            Log::warning('Login failed for email: '.$request->input('email'));
+            Log::warning('Login failed', ['email_prefix' => substr($request->input('email'), 0, 3)]);
             throw ValidationException::withMessages([
                 'email' => ['Las credenciales proporcionadas son incorrectas.'],
             ]);
@@ -56,7 +56,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        Log::info('Login successful for user: '.$user->id);
+        Log::info('Login successful', ['user_id' => $user->id]);
 
         return response()->json([
             'data' => [
