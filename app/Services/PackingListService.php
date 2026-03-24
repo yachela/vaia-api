@@ -27,7 +27,7 @@ class PackingListService
         // Generar ítems por categoría
         $this->generateDocumentacionItems($packingList);
         $this->generateHigieneItems($packingList, $duration);
-        $this->generateRopaItems($packingList, $duration);
+        $this->generateRopaItems($packingList, $duration, $trip->trip_type);
         $this->generateTecnologiaItems($packingList);
 
         Log::info("Lista base generada para viaje {$trip->id} con duración de {$duration} días");
@@ -90,9 +90,9 @@ class PackingListService
     }
 
     /**
-     * Genera ítems de categoría Ropa proporcional a la duración
+     * Genera ítems de categoría Ropa proporcional a la duración y tipo de viaje
      */
-    private function generateRopaItems(PackingList $packingList, int $duration): void
+    private function generateRopaItems(PackingList $packingList, int $duration, ?string $tripType = null): void
     {
         // Ítems base
         $items = [
@@ -110,6 +110,13 @@ class PackingListService
             $items[] = 'Zapatillas deportivas';
             $items[] = 'Gorra o sombrero';
         }
+
+        // Ítems específicos por tipo de viaje
+        match ($tripType) {
+            'aventura' => array_push($items, 'Ropa deportiva de secado rápido', 'Calzado de montaña o trekking'),
+            'familiar' => array_push($items, 'Ropa extra para los niños'),
+            default => null,
+        };
 
         foreach ($items as $item) {
             PackingItem::create([

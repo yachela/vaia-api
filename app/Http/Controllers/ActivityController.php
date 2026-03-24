@@ -43,7 +43,11 @@ class ActivityController extends Controller
         $this->authorize('view', $trip);
 
         try {
-            $activities = $trip->activities()->paginate(15);
+            $activities = $trip->activities()
+                ->with(['trip'])
+                ->orderBy('date')
+                ->orderBy('time')
+                ->paginate(15);
 
             return ActivityResource::collection($activities);
         } catch (\Exception $e) {

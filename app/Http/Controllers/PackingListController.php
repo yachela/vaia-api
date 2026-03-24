@@ -23,7 +23,7 @@ class PackingListController extends Controller
         try {
             $this->authorize('view', $trip);
 
-            $packingList = PackingList::with('items')
+            $packingList = PackingList::with(['items', 'trip'])
                 ->where('trip_id', $trip->id)
                 ->firstOrFail();
 
@@ -62,7 +62,9 @@ class PackingListController extends Controller
             $suggestions = $this->weatherService->getWeatherSuggestions($trip);
 
             return response()->json([
-                'suggestions' => $suggestions,
+                'data' => [
+                    'suggestions' => $suggestions,
+                ],
             ]);
         } catch (\Exception $e) {
             Log::error("Error al obtener sugerencias climáticas: {$e->getMessage()}");

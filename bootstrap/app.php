@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withSchedule(function (Schedule $schedule): void {
+        // Programar recordatorios de actividades diariamente a las 9:00 AM
+        $schedule->command('reminders:schedule-activities')->dailyAt('09:00');
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [
         ]);

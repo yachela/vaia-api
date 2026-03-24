@@ -18,16 +18,16 @@ class SuggestionsController extends Controller
 
         // Obtener parámetro intensity_level (relaxed, moderate, intense)
         $intensityLevel = request()->input('intensity_level', 'moderate');
-        
+
         // Validar intensity_level
-        if (!in_array($intensityLevel, ['relaxed', 'moderate', 'intense'])) {
+        if (! in_array($intensityLevel, ['relaxed', 'moderate', 'intense'])) {
             return response()->json([
-                'message' => 'El parámetro intensity_level debe ser: relaxed, moderate o intense'
+                'message' => 'El parámetro intensity_level debe ser: relaxed, moderate o intense',
             ], 422);
         }
 
         // Determinar número de sugerencias según intensidad
-        $suggestionsCount = match($intensityLevel) {
+        $suggestionsCount = match ($intensityLevel) {
             'relaxed' => 1,
             'moderate' => 2,
             'intense' => 3,
@@ -44,7 +44,7 @@ class SuggestionsController extends Controller
             ? $activities->map(fn ($a) => "- {$a->title} en {$a->location}")->join("\n")
             : 'Sin actividades planificadas aún.';
 
-        $intensityDescription = match($intensityLevel) {
+        $intensityDescription = match ($intensityLevel) {
             'relaxed' => 'relajado (1 actividad por día)',
             'moderate' => 'moderado (2 actividades por día)',
             'intense' => 'intenso (3 actividades por día)',

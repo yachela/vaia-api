@@ -9,6 +9,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PackingListController;
 use App\Http\Controllers\SuggestionsController;
 use App\Http\Controllers\TripController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['throttle:5,1'])->group(function () {
@@ -25,6 +26,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::put('/user', [AuthController::class, 'updateUser']);
     Route::post('/user/avatar', [AuthController::class, 'uploadAvatar'])->name('api.user.avatar');
+
+    // FCM Token and Notification Preferences routes
+    Route::post('/user/fcm-token', [UserController::class, 'storeFcmToken']);
+    Route::delete('/user/fcm-token', [UserController::class, 'deleteFcmToken']);
+    Route::put('/user/notification-preferences', [UserController::class, 'updateNotificationPreferences']);
 
     // All activities for the authenticated user
     Route::get('/activities', [ActivityController::class, 'all']);

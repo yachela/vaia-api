@@ -27,6 +27,7 @@ class UpdateTripRequest extends FormRequest
             'start_date' => 'sometimes|required|date|after:today',
             'end_date' => 'sometimes|required|date|after:start_date',
             'budget' => 'sometimes|required|numeric|min:0',
+            'trip_type' => 'nullable|string|in:aventura,familiar,solitario,amigos',
         ];
     }
 

@@ -21,6 +21,7 @@ class Trip extends Model
         'start_date',
         'end_date',
         'budget',
+        'trip_type',
     ];
 
     protected $casts = [
@@ -52,6 +53,11 @@ class Trip extends Model
     public function documentChecklist(): HasOne
     {
         return $this->hasOne(TripDocumentChecklist::class);
+    }
+
+    public function packingList(): HasOne
+    {
+        return $this->hasOne(PackingList::class);
     }
 
     public function getTotalExpensesAttribute(): float

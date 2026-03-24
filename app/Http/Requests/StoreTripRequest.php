@@ -27,6 +27,7 @@ class StoreTripRequest extends FormRequest
             'start_date' => 'required|date|after:today',
             'end_date' => 'required|date|after:start_date',
             'budget' => 'required|numeric|min:0',
+            'trip_type' => 'nullable|string|in:aventura,familiar,solitario,amigos',
         ];
     }
 
