@@ -23,16 +23,26 @@ class NotificationService
                 return false;
             }
 
-            // Verificar credenciales de Firebase
+            // Verificar credenciales de Firebase (soporta JSON string para entornos cloud)
+            $credentialsJson = env('FIREBASE_CREDENTIALS_JSON');
             $credentialsPath = config('firebase.credentials.file');
-            if (empty($credentialsPath) || ! file_exists($credentialsPath)) {
+
+            if (! empty($credentialsJson)) {
+                $credentials = json_decode($credentialsJson, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    Log::error('FIREBASE_CREDENTIALS_JSON no es un JSON válido');
+
+                    return false;
+                }
+                $factory = (new Factory)->withServiceAccount($credentials);
+            } elseif (! empty($credentialsPath) && file_exists($credentialsPath)) {
+                $factory = (new Factory)->withServiceAccount($credentialsPath);
+            } else {
                 Log::error('Credenciales de Firebase no configuradas o no encontradas');
 
                 return false;
             }
 
-            // Inicializar Firebase
-            $factory = (new Factory)->withServiceAccount($credentialsPath);
             $messaging = $factory->createMessaging();
 
             // Crear notificación
