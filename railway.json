@@ -4,7 +4,7 @@
     "buildCommand": "mkdir -p storage/framework/{sessions,views,cache,testing} storage/logs bootstrap/cache && chmod -R a+rw storage && npm install && npm run build"
   },
   "deploy": {
-    "startCommand": "php artisan migrate --force && php artisan filament:assets && php artisan storage:link 2>/dev/null; /start-container.sh",
+    "startCommand": "php artisan migrate --force && php artisan storage:link 2>/dev/null && php artisan filament:optimize && php artisan icons:cache; /start-container.sh",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
