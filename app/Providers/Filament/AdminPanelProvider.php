@@ -19,7 +19,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => '#D6B35B',
+                'primary' => '#1565C0',
             ])
             ->resources([
                 ActivityResource::class,
