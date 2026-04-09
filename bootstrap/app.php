@@ -20,13 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('reminders:schedule-activities')->dailyAt('09:00');
     })
     ->withMiddleware(function (Middleware $middleware): void {
-        // Confiar en proxies de red privada (Railway usa red interna para el load balancer)
-        $middleware->trustProxies(at: [
-            '10.0.0.0/8',
-            '172.16.0.0/12',
-            '192.168.0.0/16',
-            '127.0.0.1',
-        ]);
+        // Railway termina SSL en el load balancer — la red interna ya provee aislamiento
+        $middleware->trustProxies(at: '*');
 
         $middleware->api(prepend: [
         ]);
