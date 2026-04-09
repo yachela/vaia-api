@@ -30,6 +30,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         ]);
 
+        // Livewire v3 usa snapshots encriptados con APP_KEY como capa de seguridad propia
+        $middleware->validateCsrfTokens(except: [
+            'livewire/update',
+            'livewire/upload-file',
+        ]);
+
         $middleware->web(append: [
         ]);
     })
