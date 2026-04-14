@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTripRequest;
 use App\Http\Requests\UpdateTripRequest;
 use App\Http\Resources\TripResource;
-use App\Models\PackingItem;
+use App\Jobs\GeneratePackingListJob;
 use App\Models\Trip;
 use App\Services\PackingListService;
-use App\Services\WeatherService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -16,7 +15,6 @@ class TripController extends Controller
 {
     public function __construct(
         protected PackingListService $packingListService,
-        protected WeatherService $weatherService
     ) {}
 
     /**
@@ -50,29 +48,15 @@ class TripController extends Controller
                 ...$request->validated(),
             ]);
 
-            // Generar lista de equipaje + sugerencias climáticas en background
-            // No bloqueamos la respuesta si falla
+            // Generar lista base y encolar el Job de IA en background
             try {
-                $packingList = $this->packingListService->generateBaseList($trip);
+                $this->packingListService->generateBaseList($trip);
+                GeneratePackingListJob::dispatch($trip);
 
-                // Consultar clima real (Open-Meteo gratuito) y agregar ítems sugeridos
-                $weatherSuggestions = $this->weatherService->getWeatherSuggestions($trip);
-
-                foreach ($weatherSuggestions as $suggestion) {
-                    PackingItem::create([
-                        'packing_list_id' => $packingList->id,
-                        'name' => $suggestion['name'],
-                        'category' => $suggestion['category'],
-                        'is_packed' => false,
-                        'is_suggested' => true,
-                        'suggestion_reason' => $suggestion['suggestion_reason'],
-                    ]);
-                }
-
-                Log::info("Packing list generada para viaje {$trip->id} con ".count($weatherSuggestions).' sugerencias climáticas/personalizadas');
+                Log::info("Packing list base creada y Job de IA encolado para viaje {$trip->id}");
             } catch (\Exception $packingError) {
                 // El viaje se crea igual; el usuario puede regenerar la lista desde la app
-                Log::error("Error al generar packing list para viaje {$trip->id}: {$packingError->getMessage()}");
+                Log::error("Error al inicializar packing list para viaje {$trip->id}: {$packingError->getMessage()}");
             }
 
             return new TripResource($trip);

@@ -9,21 +9,21 @@ use Illuminate\Support\Facades\Log;
 class WeatherService
 {
     /**
-     * Obtiene sugerencias de equipaje basadas en el pronóstico real del clima.
+     * Obtiene los datos crudos del clima para un viaje.
      * Usa Open-Meteo (gratuito, sin API key) + Nominatim para geocoding.
      *
-     * @return array Array de sugerencias con nombre, categoría y razón
+     * @return array|null Datos del clima: avg_max, avg_min, max_rain_probability, has_snow, has_storm, destination
      */
-    public function getWeatherSuggestions(Trip $trip): array
+    public function getWeatherData(Trip $trip): ?array
     {
         try {
             $destination = $this->extractPrimaryDestination($trip->destination);
             $coordinates = $this->geocodeDestination($destination);
 
             if (! $coordinates) {
-                Log::warning("No se pudo geocodificar: {$destination}. Usando sugerencias por tipo de viaje.");
+                Log::warning("No se pudo geocodificar: {$destination}.");
 
-                return $this->getSuggestionsByTripType($trip->trip_type ?? 'general');
+                return null;
             }
 
             $weatherData = $this->fetchOpenMeteoForecast(
@@ -33,8 +33,32 @@ class WeatherService
                 $trip->end_date->format('Y-m-d')
             );
 
+            if ($weatherData) {
+                $weatherData['destination'] = $destination;
+            }
+
+            return $weatherData;
+        } catch (\Exception $e) {
+            Log::error("Error al obtener datos climáticos: {$e->getMessage()}");
+
+            return null;
+        }
+    }
+
+    /**
+     * Obtiene sugerencias de equipaje basadas en el pronóstico real del clima (fallback rule-based).
+     * Usa Open-Meteo (gratuito, sin API key) + Nominatim para geocoding.
+     *
+     * @return array Array de sugerencias con nombre, categoría y razón
+     */
+    public function getWeatherSuggestions(Trip $trip): array
+    {
+        try {
+            $weatherData = $this->getWeatherData($trip);
+            $destination = $this->extractPrimaryDestination($trip->destination);
+
             if (! $weatherData) {
-                Log::warning("No se pudo obtener pronóstico para {$destination}.");
+                Log::warning("No se pudo obtener pronóstico para {$destination}. Usando sugerencias por tipo de viaje.");
 
                 return $this->getSuggestionsByTripType($trip->trip_type ?? 'general');
             }

@@ -45,6 +45,11 @@ return [
         'key' => env('ANTHROPIC_API_KEY'),
     ],
 
+    'openrouter' => [
+        'key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_MODEL', 'anthropic/claude-haiku-4-5'),
+    ],
+
     'openweather' => [
         'key' => env('OPENWEATHER_API_KEY'),
     ],

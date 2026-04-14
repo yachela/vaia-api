@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TripResource\Pages;
+use App\Filament\Resources\TripResource\RelationManagers\ActivitiesRelationManager;
+use App\Filament\Resources\TripResource\RelationManagers\ExpensesRelationManager;
 use App\Models\Trip;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -93,6 +95,14 @@ class TripResource extends Resource
                 Tables\Actions\DeleteAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
+    }
+
+    public static function getRelationManagers(): array
+    {
+        return [
+            ActivitiesRelationManager::class,
+            ExpensesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

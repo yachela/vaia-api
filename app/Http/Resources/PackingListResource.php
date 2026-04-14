@@ -16,6 +16,7 @@ class PackingListResource extends JsonResource
         return [
             'id' => $this->id,
             'trip_id' => $this->trip_id,
+            'status' => $this->status,
             'items_by_category' => $itemsByCategory->map(function ($items, $category) {
                 return [
                     'category' => $category,

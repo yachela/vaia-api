@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\RelationManagers\TripsRelationManager;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -87,6 +88,13 @@ class UserResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
+    }
+
+    public static function getRelationManagers(): array
+    {
+        return [
+            TripsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

@@ -15,6 +15,7 @@ class PackingList extends Model
     protected $fillable = [
         'trip_id',
         'user_id',
+        'status',
     ];
 
     public function trip(): BelongsTo
