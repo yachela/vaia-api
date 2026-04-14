@@ -11,6 +11,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Collection;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TripResource extends Resource
 {
@@ -86,13 +88,49 @@ class TripResource extends Resource
                     ->counts('expenses'),
             ])
             ->filters([
+                Tables\Filters\TrashedFilter::make(),
                 Tables\Filters\Filter::make('upcoming')
-                    ->label('Proximos')
+                    ->label('Próximos')
                     ->query(fn ($query) => $query->where('start_date', '>=', now())),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                ]),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('exportar_csv')
+                    ->label('Exportar CSV')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->action(function (): StreamedResponse {
+                        $viajes = Trip::with('user')->get();
+                        return response()->streamDownload(function () use ($viajes) {
+                            $csv = fopen('php://output', 'w');
+                            fputcsv($csv, ['ID', 'Título', 'Usuario', 'Destino', 'Inicio', 'Fin', 'Presupuesto', 'Creado']);
+                            foreach ($viajes as $v) {
+                                fputcsv($csv, [
+                                    $v->id,
+                                    $v->title,
+                                    $v->user?->name,
+                                    $v->destination,
+                                    $v->start_date,
+                                    $v->end_date,
+                                    $v->budget,
+                                    $v->created_at,
+                                ]);
+                            }
+                            fclose($csv);
+                        }, 'viajes_' . now()->format('Y-m-d') . '.csv');
+                    }),
             ])
             ->defaultSort('created_at', 'desc');
     }
