@@ -31,6 +31,7 @@ class User extends Authenticatable
         'avatar_url',
         'ai_api_key',
         'ai_provider',
+        'is_admin',
     ];
 
     /**
